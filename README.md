@@ -2,6 +2,7 @@
 
 ### Дисклеймер
 **ЭТО НЕ ЯВЛЯЕТСЯ ПОЛНОЦЕННОЙ ЗАМЕНОЙ [МЕТОДИЧЕСКИХ УКАЗАНИЙ](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e) ДЛЯ ВЫПОЛНЕНИЯ ЛАБОРАТОРНЫХ РАБОТ! ВСЮ РАСШИРЕННУЮ ИНФОРМАЦИЮ СМОТРЕТЬ ТАМ**
+
 **Перевод в прогрессе...**
 
 ## Отдельно команды
@@ -42,30 +43,27 @@ java -jar -Dmode=dual bcomp-ng.jar
 ```
 
 ## Ассемблер
-Ассемблерный код может быть напишен как в стороннем текстовом редакторе (VScode/Vi Improved), так и в режиме `cli` БЭВМ-NG.
+Ассемблерный код может быть написан как в стороннем текстовом редакторе (VScode/Vi Improved), так и в режиме `cli` БЭВМ-NG.
 
 В основном, ассемблерный код выглядит как показано ниже:
 ```
-[LABEL: ] COMMAND_MNEMONIC ARGUMENT
+[МЕТКА: ] МНЕМОНИКА АРГУМЕНТ
 ```
 *Note:* квадратные скобки означают, что данная часть не является обязательнй. Загляните для просмотра полного свода правил синтаксиса ассемблера на **страницу 51** [методических указаний](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e)
 
-Labels are useful to refer to some location in memory. Read more in [addressing](#addressing) section
+Метки полезны, чтобы указывать на определенное место в памяти. Больше информации в разделе [адресация](#addressing).
 
-Here some *special* commands that might come in handy:
-|     Command     | Description |
+Вот несколько *специальных* комманд которые могут оказаться удобными:
+|     Команда     |   Описание  |
 |-----------------| ------------|
-|  `org ADDRESS`  | guides the compiler to place next value <br> (be it a raw value or a command) into cell <br> with address `ADDRESS`. Subsequent commands will be placed after `ADDRESS` one by one
-| `word 0x0000,0xffa4,0xfa` | Places specified value into memory as is. <br> `?` is equal to `0x0000` in this context <br> `0x15` is equal to `0x0015` |
+|  `org ADDRESS`  | указывает компилятору разместить следующее значение <br> (значение переменной/код команды) в ячейке <br> по адресу `ADDRESS`. Последующие команды будут размещены после адреса `ADDRESS` друг за другом.
+| `word 0x0000,0xffa4,0xfa` | Указывает значение по указанному адресу в формате "как есть". <br> `?` эквивалентен `0x0000` в данном контексте <br> `0x15` эквивалентен `0x0015` |
 
-*Note:* you can use any case of letters you desire: `0xfA51`, `0xFF`, `0xac` are all valid.
+*Note:* регистр не имеет значения; все перечисленные значения: `0xfA51`, `0xFF`, `0xac` допустимы.
 
-These special commands are not represented in `bcomp` memory. They are intended to assist you write assembly code
+Данные специальные комманды не представлены в `БЭВМ` памяти. Они предназначены для помощи в написании ассемблерного кода.
 
-There is special label `START`. It tells bcomp from where to start execution. Address, to which `START` refers, is placed into `IP`. This means, the program can be executed right off start of bcomp.
-
-
-Here is simple example (For more advanced one look [here](example.asm)):
+Простой пример ассемблерного кода:
 
 ```asm
 org 0x04f
@@ -73,7 +71,7 @@ VAR1: word 0x45a9
 START: add 0xf
 sub VAR1
 ```
-Here `0x45a9` will be placed in memory as is at address `0x04f`; `add 0xf` at `0x050` and so on. Also `0x050` (the address with special label `START`) is loaded into `IP`. Thus you don't have to manually setup this.
+Здесь `0x45a9` будет размещен в памяти как есть по адресу `0x04f`; `add 0xf` по адресу `0x050` и так далее.
 
 ## Load `asm` file into bcomp
 BCOMP has additional parameter to load file with code: <code>-Dcode=<em>file</em></code> where `file` is any valid path to existing file: `foobar.asm`, `./keklol`, `/home/foo/kek` are all valid.
@@ -174,4 +172,4 @@ of where to search for *operand*. So the value at address `0x15` (which is `0x45
 <code>0<b><em>1</em></b>00 0000 0000 0000</code> here `14` bit is ***highlighted*** and set to `1`
 
 
-P.S. Pull requests are welcome
+P.S. Помогите улучшить этот перевод! Загляните в [оригинальный репозиторий](https://github.com/owl-from-hogvarts/OPD-guide) и помогите с помощью запросов на вытягивание.
