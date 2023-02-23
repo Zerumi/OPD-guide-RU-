@@ -1,26 +1,25 @@
-# Guide for BCOMP
+# Гайд по БЭВМ-NG
 
-### Disclaimer
-**THIS IT NOT COMPREHENSIVE DESCRIPTION! USE OFFICIAL [METHODICAL](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e) FOR MORE INFO!**
+### Дисклеймер
+**ЭТО НЕ ЯВЛЯЕТСЯ ПОЛНОЦЕННОЙ ЗАМЕНОЙ [МЕТОДИЧЕСКИХ УКАЗАНИЙ](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e) ДЛЯ ВЫПОЛНЕНИЯ ЛАБОРАТОРНЫХ РАБОТ! ВСЮ РАСШИРЕННУЮ ИНФОРМАЦИЮ СМОТРЕТЬ ТАМ**
+**Перевод в прогрессе...**
 
-### This guide in russian: https://github.com/Zerumi/OPD-guide-RU-
-
-## Commands
+## Отдельно команды
 - **[LOOP](loop.md)**
 - **[Micro-commands](microcode.md)**
 
 ## Reports examples
  You can found examples of reports which we at least partially accepted by teacher in [`reports`](/reports/) folders.
 
-## Table of content
-- [Guide for BCOMP](#guide-for-bcomp)
-    - [Disclaimer](#disclaimer)
-    - [This guide in russian: https://github.com/Zerumi/OPD-guide-RU-](#this-guide-in-russian-httpsgithubcomzerumiopd-guide-ru-)
-  - [Commands](#commands)
+## Содержание
+
+- [Гайд по БЭВМ-NG](#гайд-по-бэвм-ng)
+    - [Дисклеймер](#дисклеймер)
+  - [Отдельно команды](#отдельно-команды)
   - [Reports examples](#reports-examples)
-  - [Table of content](#table-of-content)
-  - [Modes](#modes)
-  - [Assembly](#assembly)
+  - [Содержание](#содержание)
+  - [Модификации запуска](#модификации-запуска)
+  - [Ассемблер](#ассемблер)
   - [Load `asm` file into bcomp](#load-asm-file-into-bcomp)
   - [CLI](#cli)
   - [Trace](#trace)
@@ -28,38 +27,36 @@
     - [Notes on *Indirect relative*](#notes-on-indirect-relative)
   - [Command execution stages](#command-execution-stages)
 
-## Modes
+## Модификации запуска
 
-BCOMP can be launched in next modes:
- - `gui` -- default mode (graphical interface)
- - `cli` -- command line interface
+БЭВМ-NG может быть запущено в разных режимах:
+ - `gui` -- стандартный режим (GUI)
+ - `cli` -- режим командной строки
  - `decoder` -- dump default micro-program (microcode) into terminal
- - `nightmare` -- literally nightmare, don't launch or you will get mental trauma
- - `dual` -- launches bcomp in both `gui` and `cli` modes simultaneously (**recommended for [tracing](#trace)**)
+ - `nightmare` -- натурально ночной кошмар, не запускайте ее в этом режиме, иначе получите психологическую травму
+ - `dual` -- запускает БЭВМ сразу в двух режимах: `gui` и `cli` одновременно (**рекомендуется к запуску для [трассировки](#trace)**)
 
-To launch bcomp in certain mode specify flag <code>-Dmode=<em>mode_name</em></code> and replace `mode_name` with one of the above. Example:
+Чтобы указать режим запуска БЭВМ определите флаг <code>-Dmode=<em>mode_name</em></code>, заменив `mode_name` на название одного из режимов выше. Например:
 ```
 java -jar -Dmode=dual bcomp-ng.jar
 ```
 
-## Assembly
-Assembly code can be written both in foreign text editors (like vscode or vim) and in `cli` mode.
+## Ассемблер
+Ассемблерный код может быть напишен как в стороннем текстовом редакторе (VScode/Vi Improved), так и в режиме `cli` БЭВМ-NG.
 
-In general, assembly is written alike below:
+В основном, ассемблерный код выглядит как показано ниже:
 ```
 [LABEL: ] COMMAND_MNEMONIC ARGUMENT
 ```
-*Note:* square brackets means that this part is optional. To see full syntax look at **page 51** in [methodical](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e)
+*Note:* квадратные скобки означают, что данная часть не является обязательнй. Загляните для просмотра полного свода правил синтаксиса ассемблера на **страницу 51** [методических указаний](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e)
 
-Labels are useful to refer to some location in memory. Read more in [addressing](#addressing) section.
-
-Numbers can be written as decimal (e.g. `15`) or hexadecimal (e.g. `0xF`).
+Labels are useful to refer to some location in memory. Read more in [addressing](#addressing) section
 
 Here some *special* commands that might come in handy:
-| Command                   | Description                                                                                                                                                                        |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `org ADDRESS`             | guides the compiler to place next value <br> (be it a raw value or a command) into cell <br> with address `ADDRESS`. Subsequent commands will be placed after `ADDRESS` one by one |
-| `word 0x0000,0xffa4,0xfa` | Places specified value into memory as is. <br> `?` is equal to `0x0000` in this context <br> `0x15` is equal to `0x0015`                                                           |
+|     Command     | Description |
+|-----------------| ------------|
+|  `org ADDRESS`  | guides the compiler to place next value <br> (be it a raw value or a command) into cell <br> with address `ADDRESS`. Subsequent commands will be placed after `ADDRESS` one by one
+| `word 0x0000,0xffa4,0xfa` | Places specified value into memory as is. <br> `?` is equal to `0x0000` in this context <br> `0x15` is equal to `0x0015` |
 
 *Note:* you can use any case of letters you desire: `0xfA51`, `0xFF`, `0xac` are all valid.
 
