@@ -21,7 +21,7 @@
   - [Содержание](#содержание)
   - [Модификации запуска](#модификации-запуска)
   - [Ассемблер](#ассемблер)
-  - [Load `asm` file into bcomp](#load-asm-file-into-bcomp)
+  - [Загрузка `asm` файла в БЭВМ](#загрузка-asm-файла-в-бэвм)
   - [CLI](#cli)
   - [Trace](#trace)
   - [Addressing](#addressing)
@@ -33,7 +33,7 @@
 БЭВМ-NG может быть запущено в разных режимах:
  - `gui` -- стандартный режим (GUI)
  - `cli` -- режим командной строки
- - `decoder` -- dump default micro-program (microcode) into terminal
+ - `decoder` -- dump default micro-program (microcode) into terminal дамп стандартной микропрограммы в терминал
  - `nightmare` -- натурально ночной кошмар, не запускайте ее в этом режиме, иначе получите психологическую травму
  - `dual` -- запускает БЭВМ сразу в двух режимах: `gui` и `cli` одновременно (**рекомендуется к запуску для [трассировки](#trace)**)
 
@@ -73,12 +73,13 @@ sub VAR1
 ```
 Здесь `0x45a9` будет размещен в памяти как есть по адресу `0x04f`; `add 0xf` по адресу `0x050` и так далее.
 
-## Load `asm` file into bcomp
-BCOMP has additional parameter to load file with code: <code>-Dcode=<em>file</em></code> where `file` is any valid path to existing file: `foobar.asm`, `./keklol`, `/home/foo/kek` are all valid.
+## Загрузка `asm` файла в БЭВМ
+БЭВМ имеет дополнительный параметр для загрузки с кодом: <code>-Dcode=<em>file</em></code> где `file` это любой валидный путь к текущему файлу:
+`foobar.asm`, `./keklol`, `/home/foo/kek` -- все перечисленные вариации валидны.
 
-*Note:* `.asm` extension is optional and is **not required**. File can have any name that your OS accepts.
+*Note:* расширение `.asm` опционально и **не требуется**. Файл может иметь любое допустимое вашей OS имя.
 
-So to load some code and trace it you would type something like:
+Итак, чтобы загрузить некий ассемблерный код и провести его трассировку, вам нужно запустить БЭВМ следующим образом:
 ```
 java -jar -Dmode=dual -Dcode=main.asm bcomp-ng.jar
 ```
