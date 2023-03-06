@@ -23,8 +23,8 @@
   - [Ассемблер](#ассемблер)
   - [Загрузка `asm` файла в БЭВМ](#загрузка-asm-файла-в-бэвм)
   - [CLI](#cli)
-  - [Trace](#trace)
-  - [Addressing](#addressing)
+  - [Трассировка](#трассировка)
+  - [Адресация](#адресация)
     - [Notes on *Indirect relative*](#notes-on-indirect-relative)
   - [Command execution stages](#command-execution-stages)
 
@@ -56,10 +56,10 @@ java -jar -Dmode=dual bcomp-ng.jar
 Вот несколько *специальных* комманд которые могут оказаться удобными:
 |     Команда     |   Описание  |
 |-----------------| ------------|
-|  `org ADDRESS`  | указывает компилятору разместить следующее значение <br> (значение переменной/код команды) в ячейке <br> по адресу `ADDRESS`. Последующие команды будут размещены после адреса `ADDRESS` друг за другом.
+|  `org ADDRESS`  | указывает компилятору разместить следующее значение <br> (значение переменной/код команды) разместится в ячейке <br> по адресу `ADDRESS`. Последующие команды будут размещены после адреса `ADDRESS` друг за другом.
 | `word 0x0000,0xffa4,0xfa` | Указывает значение по указанному адресу в формате "как есть". <br> `?` эквивалентен `0x0000` в данном контексте <br> `0x15` эквивалентен `0x0015` |
 
-*Note:* регистр не имеет значения; все перечисленные значения: `0xfA51`, `0xFF`, `0xac` допустимы.
+*Note:* регистр символов не имеет значения; все перечисленные значения: `0xfA51`, `0xFF`, `0xac` допустимы.
 
 Данные специальные комманды не представлены в `БЭВМ` памяти. Они предназначены для помощи в написании ассемблерного кода.
 
@@ -85,20 +85,20 @@ java -jar -Dmode=dual -Dcode=main.asm bcomp-ng.jar
 ```
 
 ## CLI
-CLI is pretty cool. Finally you can input hexadecimal numbers. Seriously, just type it:
+CLI это довольно крутая модификация. Наконец-то вы сможете писать 16-ричные машинные коды. Серьезно, просто напишите это:
 ```
 ffae
 ``` 
-This will set `Input Register` to the value you wrote.
+Это установит ваш `Input Register` значением, которое вы написали. (И даже не нужен кастомный джарник)
 
-Then, you can type:
+Далее, вы можете написать:
 ```
 a
 ```
-and value of `Input Register` will be loaded into `IP` register (analogue to press of `Enter Address` button in `gui` mode).
-For more commands see `help`.
+и текущее значение `Input Register` будет загружено в `IP` регистр (аналог нажатия кнопки `(F4) Ввод адреса` в `gui` модификации).
+Для полного списка команд вам пригодится стандартная запись `help` в консоли.
 
-You can also write assembly right in BCOMP:
+Вы также можете написать ассемблерный код прямо в БЭВМ:
 ```
 asm
 Введите текст программы. Для окончания введите END
@@ -107,32 +107,32 @@ sub (0xf1)
 end
 ```
 
-## Trace
-Launch BCOMP in `dual` mode and load your `.asm` file like described in [this](#load-asm-file-into-bcomp) section.
-To see nice trace table in your terminal press `continue` button in GUI. You will see how neat lines appear in your terminal.
+## Трассировка
+Запустите БЭВМ в режиме `dual` и загрузите в него ваш `.asm` файл, как это было описано в [этой](#загрузка-asm-файла-в-бэвм) секции.
+Чтобы увидеть прелестную таблицу в вашем терминале, нажмите `continue` кнопку в GUI. Вы увидите, как таблица сама собой появлятся в терминале.
 
-After program has been executed completely:
-1. Copy trace table from terminal. 
-1. Paste it into raw text file e.g. `text.txt`. 
-1. Replace all spaces (` `) with comma (`,`). 
-1. Rename file to something like <code>text<strong>.csv</strong></code>.
-1. Open the file with Libreoffice Calc or another sheet processing program
-1. Copy table from Calc to Libreoffice Writer or another program you are writing report in
-1. Format header of the table
+После успешного выполнения программы:
+1. Скопируйте таблицу из терминала. 
+2. Вставьте ее в сырой текстовый файл, например `text.txt`. 
+3. Замените все пробелы (` `) на запятые (`,`). 
+4. Переименуйте расширение файла на csv: <code>text<strong>.csv</strong></code>.
+5. Откройте файл в Microsoft Excel / Libreoffice Calc или ином процессоре таблиц.
+6. Скопируйте таблицу из процессора таблиц в программу, где пишется ваш отчет (Microsoft Word / Libreoffice Writer)
+7. Не забывайте оформить заголовок таблицы в соответствии с ГОСТ 7.32 (задушнил.....)
 
-## Addressing
+## Адресация
 
 When you see something like this <code>2<strong>E</strong>F5</code> the second letter (`E` here) is responsible for addressing mode. Look at the table below (`L` stand for `Label`)
 
-| Hex code | Name                   | Notation                     | Example                            | Description                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------- | ---------------------- | ---------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0x0-0x7  | Absolute               | `add $L` <br> `add ADDR`     | `add $VAR1` <br> `add 0xf`         | Add number from memory cell with address `0xf` or from `$VAR1` label                                                                                                                                                                                                                                                                                                                                 |
-| 0xE      | Direct relative        | `add L`                      | `add VAR1` <br> `4EFE`             | **Only labels are supported!** `IP + 1 + OFFSET`. Notice, that `IP` point to *next* command. So that is where `+ 1` comes from. Offset can be *positive* and *negative*. Something like `0x80`, `0xfe` is **negative**. Let's assume that `4EFE` (`add`) have address `0x010`. Therefore it points to address right before `4EFE` (`0xFE` is *negative* = `-2`) i.e. `0x009`. `4EFF` point to itself |
-| 0x8      | Indirect relative      | `add (L)`                    | `add (VAR1)`                       | Works like pointers in C/C++. It's like saying: *Hey, look in this box. Here you find paper which tells you where exactly the thing is.* `add` --(Direct relative)--> `VAR1` --(Absolute)--> `value` <br> **MORE DETAILS [BELOW TABLE](#notes-on-indirect-relative)**                                                                                                                                |
-| 0xA      | Indirect autoIncrement | `add (L)+`                   | `add (VAR1)+`                      | Same like above but after absolute address has been loaded into register, address *itself* in memory cell is incremented. <br> ```AD = VAR1```<br>```VAR1 += 1``` <br> `VAR1` is a **pointer**. So **pointer** is modified. Yes, we are crazy here, we do pointer arithmetics                                                                                                                        |
-| 0xB      | Indirect autoDecrement | `add -(L)`                   | `add -(VAR1)`                      | ```VAR1 -= 1``` <br> ```AD = VAR1``` <br> Again, pointer is modified, **NOT** value it points to                                                                                                                                                                                                                                                                                                     |
-| 0xC      | Displacement SP        | `add &N` <br> `add (sp + N)` | `add &0x4a` <br> `add (sp + 0x4a)` | TODO                                                                                                                                                                                                                                                                                                                                                                                                 |
-| 0xF      | Direct Load            | `add #N`                     | `add #0xff`                        | Load specified value into `DR`. Then a command may decide what to do with operand, e.g. load it into `AC` or do something else. Only one byte value can be set with direct load. The sign of value bit-extends i.e. `0xfe` becomes `0xfffe` and `0x7f` becomes `0x007f`                                                                                                                              |
+| Hex code | Name | Notation | Example | Description |
+|----------|-------|----------|---------|---|
+|  0x0-0x7 | Прямая абсолютная | `add $L` <br> `add ADDR` | `add $VAR1` <br> `add 0xf` | Add number from memory cell with address `0xf` or from `$VAR1` label |
+|    0xE   | Direct relative | `add L` | `add VAR1` <br> `4EFE` | **Only labels are supported!** `IP + 1 + OFFSET`. Notice, that `IP` point to *next* command. So that is where `+ 1` comes from. Offset can be *positive* and *negative*. Something like `0x80`, `0xfe` is **negative**. Let's assume that `4EFE` (`add`) have address `0x010`. Therefore it points to address right before `4EFE` (`0xFE` is *negative* = `-2`) i.e. `0x009`. `4EFF` point to itself
+|    0x8   | Indirect relative | `add (L)` | `add (VAR1)` | Works like pointers in C/C++. It's like saying: *Hey, look in this box. Here you find paper which tells you where exactly the thing is.* `add` --(Direct relative)--> `VAR1` --(Absolute)--> `value` <br> **MORE DETAILS [BELOW TABLE](#notes-on-indirect-relative)**|
+|    0xA   | Indirect autoIncrement | `add (L)+` | `add (VAR1)+` | Same like above but after absolute address has been loaded into register, address *itself* in memory cell is incremented. <br> ```AD = VAR1```<br>```VAR1 += 1``` <br> `VAR1` is a **pointer**. So **pointer** is modified. Yes, we are crazy here, we do pointer arithmetics |
+|    0xB   | Indirect autoDecrement | `add -(L)` | `add -(VAR1)` | ```VAR1 -= 1``` <br> ```AD = VAR1``` <br> Again, pointer is modified, **NOT** value it points to |
+|    0xC   | Displacement SP | `add &N` <br> `add (sp + N)` | `add &0x4a` <br> `add (sp + 0x4a)` | TODO |
+|    0xF   | Direct Load | `add #N` | `add #0xff` | Load specified value into `AC`. Only one byte value can be set with direct load. The sign of value bit-extends i.e. `0xfe` becomes `0xfffe` and `0x7f` becomes `0x007f`
 
 *Note:* more information in [methodical](https://se.ifmo.ru/documents/10180/38002/Методические+указания+к+выполнению+лабораторных+работ+и+рубежного+контроля+БЭВМ+2019+bcomp-ng.pdf/d5a1be02-ad3f-4c43-8032-a2a04d6db12e) **page 22** and **page 32**
 
