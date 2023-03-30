@@ -1,72 +1,69 @@
 # LOOP
+Здесь вы сможете найти как минимум 3 способа, как сломать команду `loop`. Наслаждайтесь =)
 
-Command LOOP has actual name: "декремент и пропуск"
-
-Here you will find at least 3 ways how to break the `loop` command
-
-## Direct load
-When used with direct load like:
+## Прямая загрузка
+Когда мы используем прямую загрузку операнда в LOOP:
 ```asm
 loop #75
 ```
 
-Loop will override itself with direct load content decremented and transfer control dependent on payload. 
-Thus if positive number (e.g. `0x75`) is provided as direct load, *loop* will transfer control to next command as if value in memory cell was positive.
-And if payload is negative (e.g. `0xF5`) loop will behave like with negative value in memory cell i.e. jump over next command.
+Каждый раз будет загружаться одно и то же значение, уменьшать его и передавать управление в зависимости от предоставленного значения. 
+Таком образом для любого положительного числа (например, `0x75`) предоставленного прямой загрузкой, *loop* всегда будет передавать управление следующей команде, поскольку в ячейке памяти всегда будет положительное число (логично)
+Если значение отрицательное (e.g. `0xF5`) команда будет вести себя, будто в памяти отрицательное число, то есть, всегда перепрыгнет через 1 команду.
 
-(Positive payload) Before execution:
+(Положительное значение) Перед исполнением:
 ```
 -> 8F75
    0700
    0100
 ```
-After:
+После:
 ```
    0074
 -> 0700
    0100
 ```
 
-(Negative payload) Before execution:
+(Отрицательное значение) Перед исполнением:
 ```
 -> 8FF5
    0700
    0100
 ```
-After execution:
+После исполнения:
 ```
-   FFF5 ; sign is bit extended, therefore you see FFF5 instead of 00F5
+   FFF5 ; знак был расширен, именно поэтому вы видите FFF5 вместо 00F5
    0700
 -> 0100
 ```
 
-*Note:* other addressing modes should work as expected
+*Note:* остальные режимы адресации должны корректно работать с этой командой
 
-## Indirect autoIncrement
+## Косвенная автоинкрементная адресация
 
-### Normal
-This addressing mode will *not* break `loop` command if used as below:
+### Нормальное состояние
+Этот режим адресации *не* ломает команду `loop` если она используется так, как показано ниже:
 ```asm
 org 0x10
-word 0x5           ; <- operand
-POINTER: word 0x10 ; <- address
-loop (POINTER)+    ; <- autoIncrement
+word 0x5           ; <- операнд
+POINTER: word 0x10 ; <- адрес
+loop (POINTER)+    ; <- автоинкрементная адресация
 inc
 hlt
 ```
-1. Increment *address* and place it into `Data Register`
+1. Увеличивает *адрес* на 1 и помещает его в `Data Register`
 
-1. Store `Data Register` content (i.e. *incremented address*) to `POINTER` (`0x10 -> 0x11`)
+1. Сохраняет содержимое `Data Register` (т.е. *увеличенный адрес*) в `POINTER` (`0x10 -> 0x11`)
 
-1. Decrement *address* stored in `Data Register` (`DR` for short) back (`0x11 -> 0x10`). Notice, that `DR` has not been cleared cleared after address increment, so address remains in register
+1. Уменьшает *адрес* хранимый сейчас в `Data Register` (далее `DR`) обратно на 1 (`0x11 -> 0x10`). Учтите, что `DR` не был очищен после инкрементирования адреса, поэтому этот адрес остается в регистре.
 
-1. `loop` decrements operand `0x5` (located at address stored in `DR` i.e. `0x10`). (`0x5` -> `0x4`)
+1. `loop` уменьшает операнд `0x5` (находится по адресу, сохраненному в `DR` т.е. `0x10`). (`0x5` -> `0x4`)
 
-Infinite loop **DOES NOT** happen because `loop` performs decrement on *operand* and **NOT** on the *address*. 
+Вечного цикла **НЕ** произойдет поскольку `loop` выполняет уменьшение *операнда* а **НЕ** *адреса*.
 
 ### The WTF
-But wait! What... What if *address* and *operand* were the same essence.
-So... Here it is:
+Но стойте! Что... Что если *адрес* и *операнд* станут одни и те же.
+Итак... Мы получим следующее:
 ```asm
 org 0x10
 POINTER: word 0x10 ; notice pointer points to itself
@@ -74,13 +71,13 @@ LP: loop (POINTER)+
 jump LP
 hlt
 ```
-Please! Don't run it as this will break universe to irrecoverable state!
+Пожалуйста! Не запускайте это так как это разрушит вселенную до непоправимого состояния!
 
-So that's how we trigger infinite *loop*. 
+Таким образом происходит зацикливание команды *loop*. 
 
-`0x10 -> 0x11 -> 0x10` and so on.
+`0x10 -> 0x11 -> 0x10` и так далее.
 
- *Notice* that increment happens first, because *address increment* belongs to *address fetch* phase. In turn, *operand decrement* happens during *Execution* phase. *Address fetch* precedes *Execution*. 
+ *Обратите внимание* что сначала произойдет инкрементирование, поскольку *инкрементирование адреса* является частью *цикла выборки адреса*. В свою очередь, *декремент операнда* происходит во время *цикла исполнения*. *Цикл выборки адреса* предшествует *Циклу исполнения*. 
 
 ## Overflow
 
