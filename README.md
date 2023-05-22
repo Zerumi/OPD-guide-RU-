@@ -10,7 +10,7 @@
 ## Отдельно про команды
 - **[LOOP](loop.md)**
 - **[Micro-commands](microcode.md)**
-- **[Full-microcode-guide](microcode_guide.md)**
+- **[Полная справка по второму рубежу и микрокомандам](microcode_guide.md)**
 
 ## Reports examples
  You can found examples of reports which we at least partially accepted by teacher in [`reports`](/reports/) folders.
